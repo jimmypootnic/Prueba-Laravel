@@ -35,15 +35,13 @@ class TwContratosCorporativosController extends Controller
             $messages = [
                 'required' => ':attribute es requerido',
                 'string' => ':attribute debe ser de tipo texto',
-                'numeric' => ':attribute debe ser de tipo número',
-                'unique:tw_contratos_corporativos' => ':attribute ya existe'
+                'numeric' => ':attribute debe ser de tipo número'
             ];
 
             $validator = Validator::make($request->all(), [
-                'S_Nombre' => 'required|string|unique:tw_contratos_corporativos',
-                'S_Puesto' => 'required|string|',
-                'S_Email'  => 'required|string|',
-                'tw_corporativos_id' => 'required|numeric|'
+                'DFechaInicio' => 'required|string|',
+                'DFechaFin' => 'required|string|',
+                'TwCorporativosId' => 'required|numeric|'
             ], $messages);
 
             $errors = '';
@@ -56,13 +54,15 @@ class TwContratosCorporativosController extends Controller
                 return response()->json([
                     'message' => $errors], Response::HTTP_BAD_REQUEST);
             }
-            $oCorporativo = tw_corporativos::find($request->tw_corporativos_id);
+            $oCorporativo = tw_corporativos::find($request->TwCorporativosId);
             if ($oCorporativo) {
                 $oRegistro = new tw_contratos_corporativos();
-                $oRegistro->S_Nombre = $request->S_Nombre;
-                $oRegistro->S_Puesto = $request->S_Puesto;
-                $oRegistro->S_Email = $request->S_Email;
-                $oRegistro->tw_corporativos_id = $request->tw_corporativos_id;
+                $oRegistro->D_FechaInicio = $request->DFechaInicio;
+                $oRegistro->D_FechaFin = $request->DFechaFin;
+                $oRegistro->tw_corporativos_id = $request->TwCorporativosId;
+                if ($request->exists('SURLContrato')){
+                    $oRegistro->S_URLContrato = $request->SURLContrato;
+                }
                 $oRegistro->save();
                 return response()->json([
                     'message' => 'Registrado'], Response::HTTP_CREATED);
@@ -90,10 +90,9 @@ class TwContratosCorporativosController extends Controller
                 ];
 
                 $validator = Validator::make($request->all(), [
-                    'S_Nombre' => 'required|string|unique:tw_contratos_corporativos',
-                    'S_Puesto' => 'required|string|',
-                    'S_Email'  => 'required|string|',
-                    'tw_corporativos_id' => 'required|numeric|'
+                    'DFechaInicio' => 'required|string|',
+                    'DFechaFin' => 'required|string|',
+                    'TwCorporativosId' => 'required|numeric|'
                 ], $messages);
 
                 $errors = '';
@@ -106,10 +105,12 @@ class TwContratosCorporativosController extends Controller
                     return response()->json([
                         'message' => $errors], Response::HTTP_NOT_ACCEPTABLE);
                 }
-                $oRegistro->S_Nombre = $request->S_Nombre;
-                $oRegistro->S_Puesto = $request->S_Puesto;
-                $oRegistro->S_Email = $request->S_Email;
-                $oRegistro->tw_corporativos_id = $request->tw_corporativos_id;
+                $oRegistro->D_FechaInicio = $request->DFechaInicio;
+                $oRegistro->D_FechaFin = $request->DFechaFin;
+                $oRegistro->tw_corporativos_id = $request->TwCorporativosId;
+                if ($request->exists('SURLContrato')){
+                    $oRegistro->S_URLContrato = $request->SURLContrato;
+                }
                 $oRegistro->save();
                 return response()->json([
                     'message' => 'Modificado'], Response::HTTP_OK);

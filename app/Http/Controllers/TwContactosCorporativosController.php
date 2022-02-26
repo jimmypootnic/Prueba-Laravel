@@ -41,9 +41,9 @@ class TwContactosCorporativosController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'S_Nombre' => 'required|string|unique:tw_contactos_corporativos',
-                'S_Puesto' => 'required|string|',
-                'S_Email'  => 'required|string|',
-                'tw_corporativos_id' => 'required|numeric|'
+                'SPuesto' => 'required|string|',
+                'SEmail'  => 'required|string|',
+                'TwCorporativosId' => 'required|numeric|'
             ], $messages);
 
             $errors = '';
@@ -56,13 +56,22 @@ class TwContactosCorporativosController extends Controller
                 return response()->json([
                     'message' => $errors], Response::HTTP_BAD_REQUEST);
             }
-            $oCorporativo = tw_corporativos::find($request->tw_corporativos_id);
+            $oCorporativo = tw_corporativos::find($request->TwCorporativosId);
             if ($oCorporativo) {
                 $oRegistro = new tw_contactos_corporativos();
                 $oRegistro->S_Nombre = $request->S_Nombre;
-                $oRegistro->S_Puesto = $request->S_Puesto;
-                $oRegistro->S_Email = $request->S_Email;
-                $oRegistro->tw_corporativos_id = $request->tw_corporativos_id;
+                $oRegistro->S_Puesto = $request->SPuesto;
+                $oRegistro->S_Email = $request->SEmail;
+                $oRegistro->tw_corporativos_id = $request->TwCorporativosId;
+                if ($request->exists('SComentarios')){
+                    $oRegistro->S_Comentarios = $request->SComentarios;
+                }
+                if ($request->exists('NTelefonoFijo')){
+                    $oRegistro->N_TelefonoFijo = $request->NTelefonoFijo;
+                }
+                if ($request->exists('NTelefonoMovil')){
+                    $oRegistro->N_TelefonoMovil = $request->NTelefonoMovil;
+                }
                 $oRegistro->save();
                 return response()->json([
                     'message' => 'Registrado'], Response::HTTP_CREATED);
@@ -84,16 +93,15 @@ class TwContactosCorporativosController extends Controller
             $oRegistro = tw_contactos_corporativos::find($id);
             if($oRegistro) {
                 $messages = [
-                    'required' => ':attribute es requerido',
                     'string' => ':attribute debe ser de tipo texto',
                     'numeric' => ':attribute debe ser de tipo número'
                 ];
 
                 $validator = Validator::make($request->all(), [
-                    'S_Nombre' => 'required|string|unique:tw_contactos_corporativos',
-                    'S_Puesto' => 'required|string|',
-                    'S_Email'  => 'required|string|',
-                    'tw_corporativos_id' => 'required|numeric|'
+                    'S_Nombre' => 'required|string|',
+                    'SPuesto' => 'required|string|',
+                    'SEmail'  => 'required|string|',
+                    'TwCorporativosId' => 'required|numeric|'
                 ], $messages);
 
                 $errors = '';
@@ -107,9 +115,18 @@ class TwContactosCorporativosController extends Controller
                         'message' => $errors], Response::HTTP_NOT_ACCEPTABLE);
                 }
                 $oRegistro->S_Nombre = $request->S_Nombre;
-                $oRegistro->S_Puesto = $request->S_Puesto;
-                $oRegistro->S_Email = $request->S_Email;
-                $oRegistro->tw_corporativos_id = $request->tw_corporativos_id;
+                $oRegistro->S_Puesto = $request->SPuesto;
+                $oRegistro->S_Email = $request->SEmail;
+                $oRegistro->tw_corporativos_id = $request->TwCorporativosId;
+                if ($request->exists('SComentarios')){
+                    $oRegistro->S_Comentarios = $request->SComentarios;
+                }
+                if ($request->exists('NTelefonoFijo')){
+                    $oRegistro->N_TelefonoFijo = $request->NTelefonoFijo;
+                }
+                if ($request->exists('NTelefonoMovil')){
+                    $oRegistro->N_TelefonoMovil = $request->NTelefonoMovil;
+                }
                 $oRegistro->save();
                 return response()->json([
                     'message' => 'Modificado'], Response::HTTP_OK);

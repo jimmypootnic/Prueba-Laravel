@@ -17,6 +17,7 @@ class UserController extends Controller
             $messages = [
                 'required' => ':attribute es requerido',
                 'string' => ':attribute debe ser de tipo texto',
+                'numeric' => ':attribute debe ser de tipo número',
                 'email' => ':attribute no es un correo válido',
                 'unique:tw_usuarios' => ':attribute ya existe',
                 'confirmed' => 'falta confirmar :attribute',
@@ -26,7 +27,10 @@ class UserController extends Controller
                 'nombre' => 'required|string',
                 'email' => 'required|string|email|unique:tw_usuarios',
                 'password' => 'required|string',
-                'confirmed' => 'required|string'
+                'confirmed' => 'required|string',
+                'Activo' => 'required|numeric',
+                'verified' => 'required|string',
+                'tw_rol_id' => 'required|numeric',
             ], $messages);
 
             $errors = '';
@@ -44,8 +48,20 @@ class UserController extends Controller
             $user = new User([
                 'username' => $request->nombre,
                 'email' => $request->email,
-                'password' => bcrypt($request->password)
+                'password' => bcrypt($request->password),
+                'Activo' => $request->Activo,
+                'verified' => $request->verified,
+                'tw_rol_id' => $request->tw_rol_id,
             ]);
+            if ($request->exists('S_Nombre')){
+                $user->S_Nombre = $request->S_Nombre;
+            } if ($request->exists('S_Apellidos')){
+                $user->S_Apellidos = $request->S_Apellidos;
+            } if ($request->exists('S_FotoPerfilUrl')){
+                $user->S_FotoPerfilUrl = $request->S_FotoPerfilUrl;
+            } if ($request->exists('verification_token')){
+                $user->verification_token = $request->verification_token;
+            }
             $user->save();
             return response()->json([
                 'result' => 'success',
@@ -119,5 +135,80 @@ class UserController extends Controller
     public function userInfo(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    public function update($id, Request $request)
+    {
+        if ($request->isMethod('put')) {
+            $oRegistro = User::find($id);
+            if($oRegistro) {
+                $messages = [
+                    'required' => ':attribute es requerido',
+                    'string' => ':attribute debe ser de tipo texto',
+                    'numeric' => ':attribute debe ser de tipo número',
+                    'email' => ':attribute no es un correo válido',
+                    'unique:tw_usuarios' => ':attribute ya existe',
+                    'confirmed' => 'falta confirmar :attribute',
+                ];
+
+                $validator = Validator::make($request->all(), [
+                    'nombre' => 'required|string',
+                    'email' => 'required|string|email|',
+                    'confirmed' => 'required|string',
+                    'Activo' => 'required|numeric',
+                    'tw_rol_id' => 'required|numeric',
+                ], $messages);
+
+                $errors = '';
+                if ($validator->fails()) {
+                    $arrayMsj = json_decode($validator->getMessageBag());
+                    foreach ($arrayMsj as $key => $value) {
+                        $errors .= ', ' . $value[0];
+                    }
+                    $errors = substr($errors, 2, strlen($errors));
+                    return response()->json([
+                        'result' => 'error',
+                        'message' => $errors], Response::HTTP_BAD_REQUEST);
+                }
+                $oRegistro->username = $request->nombre;
+                $oRegistro->email = $request->email;
+                $oRegistro->Activo = $request->Activo;
+                $oRegistro->verified = $request->verified;
+                $oRegistro->tw_rol_id = $request->tw_rol_id;
+                if ($request->exists('S_Nombre')){
+                    $oRegistro->S_Nombre = $request->S_Nombre;
+                } if ($request->exists('S_Apellidos')){
+                    $oRegistro->S_Apellidos = $request->S_Apellidos;
+                } if ($request->exists('S_FotoPerfilUrl')){
+                    $oRegistro->S_FotoPerfilUrl = $request->S_FotoPerfilUrl;
+                } if ($request->exists('verification_token')){
+                    $oRegistro->verification_token = $request->verification_token;
+                }
+                $oRegistro->save();
+                return response()->json([
+                    'message' => 'Modificado'], Response::HTTP_OK);
+            }else{
+                return response()->json([
+                    'message' => 'Registro no encontrado'],
+                    Response::HTTP_NOT_FOUND);
+            }
+        }else{
+            return response()->json([
+                'message' => 'Metodo debe ser put'],
+                Response::HTTP_METHOD_NOT_ALLOWED);
+        }
+    }
+
+    public function delete($id)
+    {
+        $oRegistro = User::find($id);
+        if ($oRegistro) {
+            $oRegistro->delete_at = now();
+            $oRegistro->save();
+            return response()->json(['message' => 'Registro eliminado'], Response::HTTP_NO_CONTENT);
+        } else {
+            return response()->json([
+                'message' => 'Registro no encontrado'], Response::HTTP_NOT_FOUND);
+        }
     }
 }
