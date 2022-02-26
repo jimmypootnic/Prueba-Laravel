@@ -13,7 +13,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use PhpParser\Node\Expr\Array_;
 
 class TwCorporativosController extends Controller
 {
